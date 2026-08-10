@@ -1,0 +1,63 @@
+{
+  "properties": {
+    "jobMode": "Batch",
+    "source": {
+      "type": "Binary",
+      "connectionSettings": {
+        "type": "Lakehouse",
+        "typeProperties": {
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "artifactId": "eefd9dc1-edc6-bb2f-41ba-384e0764a8c0",
+          "rootFolder": "Files"
+        }
+      }
+    },
+    "destination": {
+      "type": "Binary",
+      "connectionSettings": {
+        "type": "Lakehouse",
+        "typeProperties": {
+          "workspaceId": "c0594481-02e1-435f-918d-b35d208d765b",
+          "artifactId": "23e92b5d-f048-4361-bd19-79225a636a75",
+          "rootFolder": "Files"
+        }
+      }
+    },
+    "policy": {
+      "timeout": "0.12:00:00"
+    }
+  },
+  "activities": [
+    {
+      "id": "9fda16eb-a471-4642-8f9f-0fae33d68178",
+      "properties": {
+        "source": {
+          "datasetSettings": {
+            "location": {
+              "type": "LakehouseLocation",
+              "folderPath": "SPData"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+          },
+          "storeSettings": {
+            "recursive": true
+          }
+        },
+        "destination": {
+          "datasetSettings": {
+            "location": {
+              "type": "LakehouseLocation"
+            }
+          },
+          "storeSettings": {
+            "copyBehavior": "PreserveHierarchy"
+          }
+        },
+        "enableStaging": false
+      }
+    }
+  ]
+}
