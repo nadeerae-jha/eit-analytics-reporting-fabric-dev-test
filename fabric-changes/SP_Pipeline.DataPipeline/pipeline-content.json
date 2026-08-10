@@ -1,0 +1,168 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "Daily"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "06e77046-2b2f-adb8-48bb-5ebaadb5d307",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_Documents_Daily",
+        "dependsOn": []
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "Every15Mins"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "a5655b86-1f95-89fd-4a75-157acbcce914",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_Documents_Every15Mins",
+        "dependsOn": []
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "CustomLargeFiles"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "ea5863ab-029b-a228-4e90-75acad718ba5",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_List_CustomLargeFiles",
+        "dependsOn": []
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "Daily"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "dd6cf99f-8405-9646-43e2-bc43e894e85b",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_List_Daily",
+        "dependsOn": []
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "Every6Hours"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "dfa77a03-e40c-9e34-45f5-86e6481269ee",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_List_Every6Hours",
+        "dependsOn": []
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "FabricWorkspaceName": "CORPDW-LakeHouse-DEV",
+            "keyVaultUrl": "https://dev-ts-synapse-kv.vault.azure.net/",
+            "LakehouseUrl": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1",
+            "SPList": "Hourly"
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "6da8e9e8-54bc-bd4a-4bc8-65466df8e30d",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "36dc54da-5f39-4151-8a0a-99f75529aeb2"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "SP_List_Hourly",
+        "dependsOn": []
+      }
+    ]
+  }
+}

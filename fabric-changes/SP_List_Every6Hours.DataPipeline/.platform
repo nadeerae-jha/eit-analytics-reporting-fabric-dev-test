@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "SP_List_Every6Hours"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "dfa77a03-e40c-9e34-45f5-86e6481269ee"
+  }
+}
