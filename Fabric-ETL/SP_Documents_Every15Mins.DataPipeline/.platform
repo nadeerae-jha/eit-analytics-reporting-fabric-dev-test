@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "SP_Documents_Every15Mins"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "a5655b86-1f95-89fd-4a75-157acbcce914"
+  }
+}

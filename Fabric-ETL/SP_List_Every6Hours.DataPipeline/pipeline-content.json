@@ -1,0 +1,927 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "SqlDWSource",
+            "sqlReaderQuery": {
+              "value": "@concat('select [Site],List,case when ISNULL(ColumnOrder,'''')='''' then ''a'' else ColumnOrder end AS ColumnOrder\nfrom [CORPDW_STG].[SP_List_Export]\nWHERE ListType =','''',pipeline().parameters.SPList,'''')",
+              "type": "Expression"
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00",
+            "datasetSettings": {
+              "type": "AzureSqlDWTable",
+              "schema": [],
+              "externalReferences": {
+                "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'90f09788-8689-4aab-9246-521b71a90efa',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'9bc7ec1d-87df-45c3-865e-1facb160f199','N/A'))"
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "fileExtension": ".txt"
+            },
+            "storeSettings": {
+              "type": "LakehouseWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": "SPData/List/Utils",
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "99982cca_cdd3_469f_b0b5_4e0de07490e1",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                    "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                    "rootFolder": "Files"
+                  },
+                  "externalReferences": {
+                    "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Copy SP list to DataLake-remove",
+        "state": "Inactive",
+        "onInactiveMarkAs": "Succeeded",
+        "dependsOn": []
+      },
+      {
+        "type": "Delete",
+        "typeProperties": {
+          "enableLogging": false,
+          "datasetSettings": {
+            "type": "Binary",
+            "typeProperties": {
+              "location": {
+                "type": "LakehouseLocation",
+                "folderPath": {
+                  "value": "@concat('SPData/List/Data/',pipeline().parameters.SPList)",
+                  "type": "Expression"
+                }
+              }
+            },
+            "connectionSettings": {
+              "name": "c94f8e46_a1d1_4eff_9543_8c422f2c1981",
+              "properties": {
+                "type": "Lakehouse",
+                "typeProperties": {
+                  "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                  "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                  "rootFolder": "Files"
+                },
+                "externalReferences": {
+                  "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "storeSettings": {
+            "type": "LakehouseReadSettings",
+            "recursive": true,
+            "wildcardFileName": "*.csv",
+            "enablePartitionDiscovery": false
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Delete files",
+        "dependsOn": [
+          {
+            "activity": "Copy SP list to DataLake-remove",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Copy SP list to ColumnMetaData",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Copy SP list to DataLake",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Copy SP list to ColumnOrder",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "8d1d90f0-d0da-929a-43a0-fcdbb5c3381a",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "list_type": {
+              "value": {
+                "value": "@pipeline().parameters.SPList",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "keyVaultURL": {
+              "value": {
+                "value": "@pipeline().parameters.keyVaultUrl",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "LakeHousePath": {
+              "value": {
+                "value": "@pipeline().parameters.LakehouseUrl",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Notebook Extract SP List",
+        "dependsOn": [
+          {
+            "activity": "Delete files",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Delete storage blob",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "StorageFolder": {
+              "value": "@concat('SharepointList/List/',pipeline().parameters.SPList)",
+              "type": "Expression"
+            },
+            "Host": {
+              "value": "@variables('FileSharePath')",
+              "type": "Expression"
+            },
+            "FileType": "csv"
+          },
+          "waitOnCompletion": true,
+          "pipelineName": "SP_File_Move",
+          "operationType": "InvokeSynapsePipeline"
+        },
+        "externalReferences": {
+          "connection": "ceefbb0f-7909-4e21-88fc-b6716a810401"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Invoke Synapse pipeline",
+        "dependsOn": [
+          {
+            "activity": "ForEachFile",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set FileSharePath",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Get Metadata').output.childItems",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Copy",
+              "typeProperties": {
+                "source": {
+                  "type": "DelimitedTextSource",
+                  "formatSettings": {
+                    "type": "DelimitedTextReadSettings"
+                  },
+                  "storeSettings": {
+                    "type": "LakehouseReadSettings",
+                    "recursive": true,
+                    "wildcardFolderPath": {
+                      "value": "@concat('SPData/List/Data/',pipeline().parameters.SPList)",
+                      "type": "Expression"
+                    },
+                    "wildcardFileName": {
+                      "value": "@item().name",
+                      "type": "Expression"
+                    },
+                    "enablePartitionDiscovery": false
+                  },
+                  "datasetSettings": {
+                    "type": "DelimitedText",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation"
+                      },
+                      "columnDelimiter": ",",
+                      "quoteChar": "\"",
+                      "escapeChar": "\\",
+                      "firstRowAsHeader": true
+                    },
+                    "schema": [],
+                    "connectionSettings": {
+                      "name": "42bc20b7_9aa2_4650_994b_b26516515a13",
+                      "properties": {
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                          "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                          "rootFolder": "Files"
+                        },
+                        "externalReferences": {
+                          "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "annotations": []
+                  }
+                },
+                "sink": {
+                  "type": "DelimitedTextSink",
+                  "formatSettings": {
+                    "type": "DelimitedTextWriteSettings",
+                    "fileExtension": ".txt"
+                  },
+                  "storeSettings": {
+                    "type": "AzureBlobStorageWriteSettings",
+                    "copyBehavior": "MergeFiles"
+                  },
+                  "datasetSettings": {
+                    "type": "DelimitedText",
+                    "typeProperties": {
+                      "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "container": {
+                          "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'dev-ts-synapse-datalake',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'prod-ts-synapse-datalake','N/A'))",
+                          "type": "Expression"
+                        },
+                        "folderPath": {
+                          "value": "@concat('SharepointList/List/',pipeline().parameters.SPList)",
+                          "type": "Expression"
+                        },
+                        "fileName": {
+                          "value": "@item().name",
+                          "type": "Expression"
+                        }
+                      },
+                      "columnDelimiter": ",",
+                      "quoteChar": "\"",
+                      "escapeChar": "\\",
+                      "firstRowAsHeader": true
+                    },
+                    "schema": [],
+                    "externalReferences": {
+                      "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'f2d2478b-d63d-4d30-9f52-b63165ea1689',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'48f099bb-5c94-4f33-9f1b-4b77303f99d8','N/A'))"
+                    },
+                    "annotations": []
+                  }
+                },
+                "translator": {
+                  "type": "TabularTranslator",
+                  "typeConversion": true,
+                  "typeConversionSettings": {
+                    "allowDataTruncation": true,
+                    "treatBooleanAsNumber": false
+                  }
+                },
+                "enableStaging": false,
+                "enableSkipIncompatibleRow": true
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Copy files to storage blob",
+              "state": "Inactive",
+              "onInactiveMarkAs": "Succeeded",
+              "dependsOn": []
+            },
+            {
+              "type": "Copy",
+              "typeProperties": {
+                "source": {
+                  "type": "BinarySource",
+                  "formatSettings": {
+                    "type": "BinaryReadSettings"
+                  },
+                  "storeSettings": {
+                    "type": "LakehouseReadSettings",
+                    "recursive": true
+                  },
+                  "datasetSettings": {
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation",
+                        "folderPath": {
+                          "value": "@concat('SPData/List/Data/',pipeline().parameters.SPList)",
+                          "type": "Expression"
+                        },
+                        "fileName": "@item().name"
+                      }
+                    },
+                    "connectionSettings": {
+                      "name": "42bc20b7_9aa2_4650_994b_b26516515a13",
+                      "properties": {
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                          "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                          "rootFolder": "Files"
+                        },
+                        "externalReferences": {
+                          "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "annotations": []
+                  }
+                },
+                "sink": {
+                  "type": "BinarySink",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageWriteSettings",
+                    "copyBehavior": "PreserveHierarchy"
+                  },
+                  "datasetSettings": {
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "container": {
+                          "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'dev-ts-synapse-datalake',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'prod-ts-synapse-datalake','N/A'))",
+                          "type": "Expression"
+                        },
+                        "folderPath": {
+                          "value": "@concat('SharepointList/List/',pipeline().parameters.SPList)",
+                          "type": "Expression"
+                        },
+                        "fileName": {
+                          "value": "@item().name",
+                          "type": "Expression"
+                        }
+                      }
+                    },
+                    "externalReferences": {
+                      "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'f2d2478b-d63d-4d30-9f52-b63165ea1689',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'48f099bb-5c94-4f33-9f1b-4b77303f99d8','N/A'))"
+                    },
+                    "annotations": []
+                  }
+                },
+                "enableStaging": false,
+                "enableSkipIncompatibleRow": true
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Copy files to storage blob_copy1",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEachFile",
+        "dependsOn": [
+          {
+            "activity": "Get Metadata",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "GetMetadata",
+        "typeProperties": {
+          "datasetSettings": {
+            "type": "DelimitedText",
+            "typeProperties": {
+              "location": {
+                "type": "LakehouseLocation",
+                "folderPath": {
+                  "value": "@concat('SPData/List/Data/',pipeline().parameters.SPList)",
+                  "type": "Expression"
+                }
+              },
+              "columnDelimiter": ",",
+              "quoteChar": "\"",
+              "escapeChar": "\\",
+              "firstRowAsHeader": true
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "5dbfd055_7f36_4411_ba81_e7ef8883ddb2",
+              "properties": {
+                "type": "Lakehouse",
+                "typeProperties": {
+                  "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                  "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                  "rootFolder": "Files"
+                },
+                "externalReferences": {
+                  "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "fieldList": [
+            "childItems"
+          ],
+          "storeSettings": {
+            "type": "LakehouseReadSettings",
+            "recursive": true,
+            "enablePartitionDiscovery": false
+          },
+          "formatSettings": {
+            "type": "DelimitedTextReadSettings"
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Get Metadata",
+        "dependsOn": [
+          {
+            "activity": "Notebook Extract SP List",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Delete",
+        "typeProperties": {
+          "enableLogging": false,
+          "datasetSettings": {
+            "type": "Binary",
+            "typeProperties": {
+              "location": {
+                "type": "AzureBlobStorageLocation",
+                "container": {
+                  "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'dev-ts-synapse-datalake',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'prod-ts-synapse-datalake','N/A'))",
+                  "type": "Expression"
+                },
+                "folderPath": {
+                  "value": "@concat('SharepointList/List/',pipeline().parameters.SPList)",
+                  "type": "Expression"
+                }
+              }
+            },
+            "externalReferences": {
+              "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'f2d2478b-d63d-4d30-9f52-b63165ea1689',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'48f099bb-5c94-4f33-9f1b-4b77303f99d8','N/A'))"
+            },
+            "annotations": []
+          },
+          "storeSettings": {
+            "type": "AzureBlobStorageReadSettings",
+            "recursive": true,
+            "wildcardFileName": "*.csv",
+            "enablePartitionDiscovery": false
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Delete storage blob",
+        "dependsOn": []
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "FileSharePath",
+          "value": {
+            "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),concat('\\\\MMOCRMDWDBD01\\DW_Files\\CRMDW\\SharePointLists\\Data\\test\\Dev\\',pipeline().parameters.SPList),if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),concat('\\\\MMOCRMDWDBD01\\DW_Files\\CRMDW\\SharePointLists\\Data\\test\\Prod\\',pipeline().parameters.SPList),'N/A'))",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set FileSharePath",
+        "dependsOn": []
+      },
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "SqlDWSource",
+            "sqlReaderQuery": {
+              "value": "@concat('select List,[Name],[NewName]\nfrom [CORPDW_STG].[SP_List_Export_SiteMetaData]\nWHERE ListType =','''',pipeline().parameters.SPList,'''')",
+              "type": "Expression"
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00",
+            "datasetSettings": {
+              "type": "AzureSqlDWTable",
+              "schema": [],
+              "externalReferences": {
+                "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'90f09788-8689-4aab-9246-521b71a90efa',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'9bc7ec1d-87df-45c3-865e-1facb160f199','N/A'))"
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "fileExtension": ".txt"
+            },
+            "storeSettings": {
+              "type": "LakehouseWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": "SPData/List/Utils",
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'_SiteMetaData.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "d9517005_20be_40cb_92e8_a13837b6044e",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                    "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                    "rootFolder": "Files"
+                  },
+                  "externalReferences": {
+                    "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Copy SP list to ColumnMetaData",
+        "state": "Inactive",
+        "onInactiveMarkAs": "Succeeded",
+        "dependsOn": []
+      },
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "DelimitedTextSource",
+            "formatSettings": {
+              "type": "DelimitedTextReadSettings"
+            },
+            "storeSettings": {
+              "type": "AzureBlobStorageReadSettings",
+              "recursive": true,
+              "enablePartitionDiscovery": false
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "AzureBlobStorageLocation",
+                  "container": {
+                    "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'dev-ts-synapse-datalake',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'prod-ts-synapse-datalake','N/A'))",
+                    "type": "Expression"
+                  },
+                  "folderPath": {
+                    "value": "SharepointList/Utils",
+                    "type": "Expression"
+                  },
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "externalReferences": {
+                "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'f2d2478b-d63d-4d30-9f52-b63165ea1689',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'48f099bb-5c94-4f33-9f1b-4b77303f99d8','N/A'))"
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "fileExtension": ".txt"
+            },
+            "storeSettings": {
+              "type": "LakehouseWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": "SPData/List/Utils",
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "1ba9e9dc_68cc_4c6a_8c14_19189d04b22e",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                    "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                    "rootFolder": "Files"
+                  },
+                  "externalReferences": {
+                    "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Copy SP list to DataLake",
+        "dependsOn": []
+      },
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "DelimitedTextSource",
+            "formatSettings": {
+              "type": "DelimitedTextReadSettings"
+            },
+            "storeSettings": {
+              "type": "AzureBlobStorageReadSettings",
+              "recursive": true,
+              "enablePartitionDiscovery": false
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "AzureBlobStorageLocation",
+                  "container": {
+                    "value": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'dev-ts-synapse-datalake',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'prod-ts-synapse-datalake','N/A'))",
+                    "type": "Expression"
+                  },
+                  "folderPath": {
+                    "value": "SharepointList/Utils/ColumnOrder",
+                    "type": "Expression"
+                  },
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "externalReferences": {
+                "connection": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'f2d2478b-d63d-4d30-9f52-b63165ea1689',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'48f099bb-5c94-4f33-9f1b-4b77303f99d8','N/A'))"
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "fileExtension": ".txt"
+            },
+            "storeSettings": {
+              "type": "LakehouseWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": "SPData/List/Utils",
+                  "fileName": {
+                    "value": "@concat(pipeline().parameters.SPList,'_ColumnOrder.csv')",
+                    "type": "Expression"
+                  }
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "e48ad7bf_7326_4d25_82c7_16d505c48be3",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'0764a8c0-384e-41ba-bb2f-edc6eefd9dc1',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'23e92b5d-f048-4361-bd19-79225a636a75','N/A'))",
+                    "workspaceId": "@if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-DEV'),'72b0dce6-c772-43c1-a4bd-501b8778f6b7',if(equals(pipeline().parameters.FabricWorkspaceName,'CORPDW-LakeHouse-PRD'),'c0594481-02e1-435f-918d-b35d208d765b','N/A'))",
+                    "rootFolder": "Files"
+                  },
+                  "externalReferences": {
+                    "connection": "c26b5c4d-cfc2-4b6f-b544-a78fff28e6f7"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Copy SP list to ColumnOrder",
+        "dependsOn": []
+      }
+    ],
+    "parameters": {
+      "FabricWorkspaceName": {
+        "type": "string",
+        "defaultValue": "CORPDW-LakeHouse-DEV"
+      },
+      "keyVaultUrl": {
+        "type": "string",
+        "defaultValue": "https://dev-ts-synapse-kv.vault.azure.net/"
+      },
+      "LakehouseUrl": {
+        "type": "string",
+        "defaultValue": "abfss://72b0dce6-c772-43c1-a4bd-501b8778f6b7@onelake.dfs.fabric.microsoft.com/0764a8c0-384e-41ba-bb2f-edc6eefd9dc1"
+      },
+      "SPList": {
+        "type": "string",
+        "defaultValue": "Every6Hours"
+      }
+    },
+    "variables": {
+      "FileSharePath": {
+        "type": "String"
+      }
+    }
+  }
+}
